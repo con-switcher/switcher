@@ -40,7 +40,7 @@ module.exports = class Server {
         let self = this;
 
         // 创建socket
-        this._srv = new net.Server(function (socket) {
+       let server = this.server = new net.Server(function (socket) {
             if (self._connections >= self.maxConnections) { // 超过最大连接数拒绝连接
                 console.error('socks5 服务器连接数超过最大限制，拒绝链接');
                 socket.destroy();
@@ -54,8 +54,12 @@ module.exports = class Server {
             self._handleSocks5Connection(socket);
         });
 
-        this._srv.on('error', function (err) {
+        server.on('error', function (err) {
             console.log('socks5 server error', err);
+        });
+
+        server.on('listening', () => {
+            console.log(`socks5 server starterd ${this.port}`)
         });
     }
 
@@ -129,13 +133,13 @@ module.exports = class Server {
 
         this.useAuth(new UserPassword());
         this.useAuth(new NoneAuth());
-        this._srv.listen(this.port);
+        this.server.listen(this.port);
 
         return this;
     }
 
     close(cb) {
-        this._srv.close(cb);
+        this.server.close(cb);
         return this;
     }
 };

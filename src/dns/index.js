@@ -15,7 +15,7 @@ module.exports = class DnsServer {
         server.on('error', error => {
         });
         server.on('listening', () => {
-            console.log('dns starterd')
+            console.log(`dns starterd ${this.port}`)
         });
 
         this.server.on('message', async (message, rinfo) => {
