@@ -27,13 +27,25 @@ module.exports = class Config {
     constructor() {
         this._dnsIpHostCache = {};
         this._dnsHostIpCache = {};
+        this._ipRemoteMap = {};
     }
 
     /**
      * 返回代理请求的remote对象
      */
     getRemote(ip, domain) {
+        // 四种情况
+        // 1. dns查询 判断需要走代理的
+        // 2. dns查询 判断不需要走代理的
+        // 3. 没有经过dns查询，给的域名
+        // 4. 没有经过dns查询，其他途径解析的ip
+        if (this._dnsIpHostCache[ip]) {// mock ip 转发
+            return this._ipRemoteMap[ip];
+        }
 
+        if (domain) {
+            let ip = await get
+        }
     }
 
     /**

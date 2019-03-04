@@ -39,7 +39,7 @@ class Parser extends EventEmitter {
         this.username = '';
         this.password = '';
 
-        this.start();
+        this.start(); // 开始接受数据
     }
 
     /**
@@ -216,6 +216,7 @@ class Parser extends EventEmitter {
                             this._dstaddr = this._dstaddr.toString();
 
                         this.emit('request', {
+                            atyp: this._atyp,
                             cmd: this._cmd,
                             dstAddr: this._dstaddr,
                             dstPort: this._dstport,

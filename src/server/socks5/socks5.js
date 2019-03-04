@@ -35,6 +35,7 @@ module.exports = class Server {
         this._connections = 0;
         this.maxConnections = 1000;
         this._authMap = {};
+        this.config = config;
 
         let self = this;
 
@@ -67,7 +68,7 @@ module.exports = class Server {
         let self = this;
         let parser = new Parser(socket);
         parser.on('error', function (err) {
-            console.log(err)
+            console.error(err)
             if (socket.writable)
                 socket.end();
         });
@@ -97,12 +98,23 @@ module.exports = class Server {
             }
         });
         parser.on('request', function (reqInfo) { // 请求数据
-            if (reqInfo.cmd !== 'connect'){
+            if (reqInfo.cmd !== 'connect') {
                 return socket.end(BUF_REP_CMDUNSUPP);
-            }else{
+            } else {
                 socket.write(BUF_REP_INTR_SUCCESS)
             }
+            let {
+                atyp, cmd, dstAddr, dstPort, username, password
+            } = reqInfo;
+            let ip = null;
+            let domain = null;
+            if (atyp != ATYP.NAME) {
+                ip = dstAddr;
+            } else {
+                domain = dstAddr;
+            }
             // client socket已经被pause
+            this.config.getRemote(ip, domain)
 
         });
 
