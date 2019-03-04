@@ -2,7 +2,6 @@ const EventEmitter = require('events');
 
 const CMD = require('./constants').CMD;
 const ATYP = require('./constants').ATYP;
-const socketIp = require('../../utils/socketIp');
 
 var STATE_VERSION = 0,
     STATE_NMETHODS = 1,
@@ -34,10 +33,6 @@ class Parser extends EventEmitter {
         this._dstaddr = undefined;
         this._dstaddrp = 0;
         this._dstport = undefined;
-
-        let clientIp = socketIp.getRemoteIp(stream);
-        this._clientIp = clientIp;
-        this._clientPort = stream.remotePort;
 
         this.authed = false;
 
@@ -222,8 +217,6 @@ class Parser extends EventEmitter {
 
                         this.emit('request', {
                             cmd: this._cmd,
-                            srcAddr: this._clientIp,
-                            srcPort: this._clientPort,
                             dstAddr: this._dstaddr,
                             dstPort: this._dstport,
                             username: this.username,

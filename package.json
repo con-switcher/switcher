@@ -1,0 +1,26 @@
+{
+  "name": "ubuntu",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ip-forward/ubuntu.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ip-forward/ubuntu/issues"
+  },
+  "homepage": "https://github.com/ip-forward/ubuntu#readme",
+  "dependencies": {
+    "ip": "^1.1.5",
+    "ip-address": "^5.8.9",
+    "native-dns-packet": "^0.1.1",
+    "random-ipv4": "^1.0.2",
+    "sodium-native": "^2.3.0"
+  }
+}
