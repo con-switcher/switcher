@@ -36,12 +36,12 @@ function EVP_BytesToKey(password, key_len, iv_len) {
     let ms = Buffer.concat(md5Array);
     let key = ms.slice(0, key_len);
     let iv = ms.slice(key_len, key_len + iv_len);
-    bytes_to_key_results[cacheKey] = [key, iv];
+    bytes_to_key_results[cacheKey] = {key, iv};
     return {key, iv};
 };
 
 function get_cipher(method, op, key, iv) {
-    if (method == 'chacha') {
+    if (method == 'chacha20') {
         return new ChaCha20(key, iv);
     } else {
         if (op === OPValues.cipher) {
@@ -52,7 +52,7 @@ function get_cipher(method, op, key, iv) {
     }
 }
 
-exports = class Cryptor {
+module.exports = class Cryptor {
     constructor(password, method) {
 
         this.password = Buffer.from(password, 'binary');
@@ -69,17 +69,22 @@ exports = class Cryptor {
         let [keyLen, ivLen] = method_supported[this.method];
         let {key, iv} = EVP_BytesToKey(password, keyLen, ivLen);
         this.key = key;
+        this.cipher_iv = iv;
         this.cipher = get_cipher(this.method, OPValues.cipher, key, iv);
 
     }
 
-    encrypt(buf) {
-        let result = this.cipher.update(buf);
+    encrypt(buf , id) {
+        console.log(id,'buf size', buf.length);
+        let result = this.cipher.encrypt(buf);
+        console.log(id,'encrypted size', result.length);
         if (this.iv_sent) {
             return result;
         } else {
             this.iv_sent = true;
-            return Buffer.concat([this.cipher_iv, result]);
+            let cat = Buffer.concat([this.cipher_iv, result]);
+            console.log(id,'merged size', cat.length);
+            return cat;
         }
     }
 
@@ -88,9 +93,9 @@ exports = class Cryptor {
             let [keyLen, ivLen] = method_supported[this.method];
             this.decipher_iv = buf.slice(0, ivLen);
             this.decipher = get_cipher(this.method, OPValues.decipher, this.key, this.decipher_iv);
-            return this.decipher.update(buf.slice(ivLen));
+            return this.decipher.decrypt(buf.slice(ivLen));
         } else {
-            return this.decipher.update(buf);
+            return this.decipher.decrypt(buf);
         }
     }
 

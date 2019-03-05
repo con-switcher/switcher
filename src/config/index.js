@@ -1,19 +1,7 @@
 const randomIpv4 = require('random-ipv4');
 
 // 远端配置
-const RemoteConfig = {
-    "ppsheep": {
-        "type": "ss",
-        "server": "127.0.0.1",
-        "server_port": 8389,
-        "password": "chacha20_password",
-        "timeout": 60,
-        "method": "chacha20",
-    },
-    "https-proxy": {
-        "type": "https"
-    }
-}
+const RemoteConfig = require('../../config.json');
 // 转发规则
 const ProxyRule = [
     {
@@ -32,7 +20,7 @@ module.exports = class Config {
         this._hostIpCache = {};
         this._ipRemoteMap = {};
 
-        let ppsheep = new (remote['ss'])({
+        let ppsheep = this.ppsheep = new (remote['ss'])({
             config: RemoteConfig.ppsheep, dnsResolver
         });
         let direct = this.direct = new (remote['direct'])({
@@ -62,7 +50,7 @@ module.exports = class Config {
         }
 
         if (!ip) {
-
+            return this.ppsheep;
         }
 
         return this.direct;

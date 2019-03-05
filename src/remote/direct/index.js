@@ -57,6 +57,7 @@ module.exports = class Direct {
                 proxy.destroy();
                 clientSocket.destroy();
             });
+
         })
     }
 

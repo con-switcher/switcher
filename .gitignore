@@ -17,3 +17,4 @@ node_modules/
 build/
 .idea/
 cmake-build-debug/
+/config.json

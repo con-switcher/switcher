@@ -30,4 +30,5 @@ let r2 = Buffer.alloc(2);
 inst2.update(r2, Buffer.from('7Ae0','hex'));
 console.log(r2.toString('hex'));
 
+console.log(Buffer.concat([Buffer.from('a'), Buffer.from('b')]).toString('ascii'))
 
