@@ -82,7 +82,7 @@ module.exports = class Server {
             for (let i = 0; i < methods.length; i++) {
                 let method = methods[i];
                 auth = authsMap[method];
-                if (auth && auth.needUserName) break;
+                if (auth ) break;
             }
             if (auth) {
                 auth.server(socket, function (result, user, pass) {

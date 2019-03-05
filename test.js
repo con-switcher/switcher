@@ -1,3 +1,7 @@
+const net = require('net');
+
+const Cryptor = require('./src/remote/ss/cryptor')
+
 const sodium = require('sodium-native')
 
 let key = Buffer.from("23CCAF077EA6CBD8D2ED30CB19EF1B51ED293B5D9D847FEC3A322AF0BA647C68", "hex");
@@ -11,7 +15,9 @@ let plaintext2 = Buffer.from("474554202F20485454502F312E310D0A486F73743A20777777
 let ciphertext2 = Buffer.from("16EA6ECCA571038B92770151FCC6EC8971429705C5466C2660A864A1E693D8AB30F9A0FC107C85863805D7A607BA5F8B4FEC8AF1193176464C941704E66B893DA6C5E9FDE6D87EB8EE5B57CBD5", "hex");
 
 
-let inst = sodium.crypto_stream_chacha20_xor_instance(nonce, key);
+
+
+/*let inst = sodium.crypto_stream_chacha20_xor_instance(nonce, key);
 let result1 = Buffer.alloc(plaintext1.length);
 inst.update(result1, plaintext1);
 console.log(result1.toString('hex'));
@@ -30,5 +36,5 @@ let r2 = Buffer.alloc(2);
 inst2.update(r2, Buffer.from('7Ae0','hex'));
 console.log(r2.toString('hex'));
 
-console.log(Buffer.concat([Buffer.from('a'), Buffer.from('b')]).toString('ascii'))
+console.log(plaintext2.toString('ascii'))*/
 

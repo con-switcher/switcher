@@ -53,7 +53,7 @@ module.exports = class Config {
             return this.ppsheep;
         }
 
-        return this.direct;
+        return this.ppsheep;
     }
 
     /**

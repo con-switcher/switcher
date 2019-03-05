@@ -1,5 +1,5 @@
 const net = require('net');
-const ip = require('ip');
+const ipUtils = require('ip');
 const Cryptor = require('./cryptor');
 // 返回一个连接用来传送字节流
 const Socks5HostType = {
@@ -30,12 +30,9 @@ module.exports = class SS {
             let cryptor = new Cryptor(this.password, this.method);
 
             // 客户流处理
-            clientSocket.on("data",  (origin) => {
+            clientSocket.on("data", (origin) => {
 
-                console.log(id, 'origin ', origin.length)
-                let data = cryptor.encrypt(origin , id);
-                console.log(id, 'encrypted ', data.length)
-
+                let data = cryptor.encrypt(origin, id);
                 if (!proxy.write(data)) {
                     clientSocket.pause();
                 }
@@ -83,7 +80,6 @@ module.exports = class SS {
                 clientSocket.resume();
             });
             proxy.on("data", function (data) {
-                console.log('server data')
                 data = cryptor.decrypt(data);
                 if (!clientSocket.write(data)) {
                     return proxy.pause();
@@ -99,7 +95,6 @@ module.exports = class SS {
                 reject(e);
             });
             proxy.on("close", function (had_error) {
-                console.log('close', had_error)
                 if (had_error) {
                     if (clientSocket) {
                         return clientSocket.destroy();
@@ -131,21 +126,21 @@ module.exports = class SS {
         let buff;
         if (ip) {
             if (net.isIPv4(ip)) {
-                buff = Buffer.alloc(5);
+                buff = Buffer.alloc(7);
                 buff.writeUInt8(Socks5HostType.IPv4);
-                buff.write(ip.toBuffer(serverAddr));
+                ipUtils.toBuffer(ip).copy(buff, 1);
             } else {
-                buff = Buffer.alloc(17);
+                buff = Buffer.alloc(19);
                 buff.writeUInt8(Socks5HostType.IPv6);
-                buff.write(ip.toBuffer(serverAddr));
+                ipUtils.toBuffer(ip).copy(buff, 1);
             }
         } else {
-            buff = Buffer.alloc(domain.length + 1);
+            buff = Buffer.alloc(domain.length + 4);
             buff.writeUInt8(Socks5HostType.Hostname);
-            buff.writeUInt8(domain.length);
-            buff.write(domain);
+            buff.writeUInt8(domain.length, 1);
+            buff.write(domain, 2);
         }
-        buff.writeUInt16BE(port);
+        buff.writeUInt16BE(port, buff.length - 2);
         return buff;
     }
 };

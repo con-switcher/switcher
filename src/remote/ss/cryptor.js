@@ -35,7 +35,7 @@ function EVP_BytesToKey(password, key_len, iv_len) {
     }
     let ms = Buffer.concat(md5Array);
     let key = ms.slice(0, key_len);
-    let iv = ms.slice(key_len, key_len + iv_len);
+    let iv = Buffer.from("D411B3EE40A49804", "hex");//ms.slice(key_len, key_len + iv_len);
     bytes_to_key_results[cacheKey] = {key, iv};
     return {key, iv};
 };
@@ -74,17 +74,13 @@ module.exports = class Cryptor {
 
     }
 
-    encrypt(buf , id) {
-        console.log(id,'buf size', buf.length);
+    encrypt(buf ) {
         let result = this.cipher.encrypt(buf);
-        console.log(id,'encrypted size', result.length);
         if (this.iv_sent) {
             return result;
         } else {
             this.iv_sent = true;
-            let cat = Buffer.concat([this.cipher_iv, result]);
-            console.log(id,'merged size', cat.length);
-            return cat;
+            return Buffer.concat([this.cipher_iv, result]);
         }
     }
 
