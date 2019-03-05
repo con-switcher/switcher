@@ -1,5 +1,4 @@
 const { Resolver } = require('dns');
-const log = require("./log");
 const resolver = new Resolver();
 //const dnsServer = ['192.168.50.1'];
 const dnsServer = ['172.17.1.236'];

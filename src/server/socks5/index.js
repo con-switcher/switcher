@@ -28,7 +28,7 @@ const BUF_REP_CMDUNSUPP = new Buffer([0x05, REP.CMDUNSUPP]);
  */
 module.exports = class Server {
     constructor({
-                    port,
+                    port = 8001,
                     config,
                 }) {
         this.port = port;
@@ -40,7 +40,7 @@ module.exports = class Server {
         let self = this;
 
         // 创建socket
-       let server = this.server = new net.Server(function (socket) {
+        let server = this.server = new net.Server(function (socket) {
             if (self._connections >= self.maxConnections) { // 超过最大连接数拒绝连接
                 console.error('socks5 服务器连接数超过最大限制，拒绝链接');
                 socket.destroy();
@@ -72,7 +72,7 @@ module.exports = class Server {
         let self = this;
         let parser = new Parser(socket);
         parser.on('error', function (err) {
-            console.error(err)
+            console.error(err.message);
             if (socket.writable)
                 socket.end();
         });
@@ -101,7 +101,7 @@ module.exports = class Server {
                 socket.end(BUF_AUTH_NO_ACCEPT);
             }
         });
-        parser.on('request', function (reqInfo) { // 请求数据
+        parser.on('request', async  (reqInfo) => { // 请求数据
             if (reqInfo.cmd !== 'connect') {
                 return socket.end(BUF_REP_CMDUNSUPP);
             } else {
@@ -118,7 +118,12 @@ module.exports = class Server {
                 domain = dstAddr;
             }
             // client socket已经被pause
-            this.config.getRemote(ip, domain)
+            let remote = await this.config.getRemote(ip, domain);
+            remote.proxySocket({
+                clientSocket: socket,
+                port: dstPort,
+                ip, domain
+            });
 
         });
 

@@ -7,8 +7,9 @@ const Socks5HostType = {
     Hostname: 0x03,
     IPv6: 0x04
 }
-exports = class SS {
-    constructor({serverAddr, serverPort, password, method}) {
+module.exports = class SS {
+    constructor({config}) {
+        let {serverAddr, serverPort, password, method} = config;
         this.serverAddr = serverAddr;
         this.serverPort = serverPort;
         this.password = password;
@@ -20,28 +21,28 @@ exports = class SS {
     /**
      * 代理连接
      */
-    proxyConnection(connection, addr, port, domain) {
+    proxySocket({clientSocket, ip, port, domain}) {
         return new Promise((resolve, reject) => {
             let proxy = net.connect(this.serverPort, this.serverAddr);
 
             let cryptor = new Cryptor(this.password, this.method);
 
             // 客户流处理
-            connection.on("data", function (data) {
+            clientSocket.on("data", function (data) {
                 data = cryptor.encrypt(data);
                 if (!remote.write(data)) {
                     connection.pause();
                 }
             });
-            connection.on("end", function () {
+            clientSocket.on("end", function () {
                 if (proxy) {
                     return proxy.end();
                 }
             });
-            connection.on("error", function (e) {
+            clientSocket.on("error", function (e) {
                 reject(e);
             });
-            connection.on("close", function (had_error) {
+            clientSocket.on("close", function (had_error) {
                 if (had_error) {
                     if (proxy) {
                         proxy.destroy();
@@ -53,38 +54,38 @@ exports = class SS {
                 }
                 return clean();
             });
-            connection.on("drain", function () {
+            clientSocket.on("drain", function () {
                 if (proxy) {
                     return proxy.resume();
                 }
             });
-            connection.setTimeout(this.timeout, function () {
+            clientSocket.setTimeout(this.timeout, function () {
                 if (proxy) {
                     proxy.destroy();
                 }
-                if (connection) {
-                    return connection.destroy();
+                if (clientSocket) {
+                    return clientSocket.destroy();
                 }
             });
 
-            connection.pause();
+            clientSocket.pause();
             // 服务器流处理
             proxy.once('connect', function () {
                 let header = this._getProxyHeader(addr, port, domain);
                 let enHeader = cryptor.encrypt(header);
                 proxy.write(enHeader);
-                connection.resume();
+                clientSocket.resume();
             });
             remote.on("data", function (data) {
 
                 data = cryptor.decrypt(data);
-                if (!connection.write(data)) {
+                if (!clientSocket.write(data)) {
                     return proxy.pause();
                 }
             });
             proxy.on("end", function () {
-                if (connection) {
-                    return connection.end();
+                if (clientSocket) {
+                    return clientSocket.end();
                 }
             });
             proxy.on("error", function (e) {
@@ -92,26 +93,26 @@ exports = class SS {
             });
             proxy.on("close", function (had_error) {
                 if (had_error) {
-                    if (connection) {
-                        return connection.destroy();
+                    if (clientSocket) {
+                        return clientSocket.destroy();
                     }
                 } else {
-                    if (connection) {
-                        return connection.end();
+                    if (clientSocket) {
+                        return clientSocket.end();
                     }
                 }
             });
             proxy.on("drain", function () {
-                if (connection) {
-                    return connection.resume();
+                if (clientSocket) {
+                    return clientSocket.resume();
                 }
             });
             proxy.setTimeout(this.timeout, function () {
                 if (proxy) {
                     proxy.destroy();
                 }
-                if (connection) {
-                    return connection.destroy();
+                if (clientSocket) {
+                    return clientSocket.destroy();
                 }
             });
         })
