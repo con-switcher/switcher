@@ -35,7 +35,7 @@ function EVP_BytesToKey(password, key_len, iv_len) {
     }
     let ms = Buffer.concat(md5Array);
     let key = ms.slice(0, key_len);
-    let iv = Buffer.from("D411B3EE40A49804", "hex");//ms.slice(key_len, key_len + iv_len);
+    let iv = ms.slice(key_len, key_len + iv_len);
     bytes_to_key_results[cacheKey] = {key, iv};
     return {key, iv};
 };
